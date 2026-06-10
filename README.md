@@ -1,13 +1,4 @@
 # PAwChO - Zadanie 2
-
-## Opis projektu
-
-Repozytorium zawiera aplikację pogodową przygotowaną jako rozwiązanie zadania 1 oraz łańcuch GitHub Actions opracowany w ramach zadania 2.
-
-Aplikacja została przygotowana w środowisku Node.js z wykorzystaniem frameworka Express. Po uruchomieniu aplikacja zapisuje w logach datę uruchomienia, autora oraz port TCP, na którym nasłuchuje.
-
-W ramach zadania 2 przygotowano pipeline GitHub Actions, który buduje obraz kontenera na podstawie pliku Dockerfile oraz kodu źródłowego aplikacji, wykonuje test CVE i publikuje obraz do GitHub Container Registry.
-
 ## Autor
 
 Mariia Flidermoiz
@@ -21,10 +12,10 @@ Użytkownik może sprawdzić pogodę dla wybranych miast w Polsce, Ukrainie oraz
 
 Aplikacja wyświetla:
 
-* temperaturę,
-* wilgotność,
-* prędkość wiatru,
-* opis warunków pogodowych.
+- temperaturę,
+- wilgotność,
+- prędkość wiatru,
+- opis warunków pogodowych.
 
 Dodatkowo aplikacja posiada endpoint kontrolny:
 
@@ -203,7 +194,15 @@ Jeżeli Trivy wykryje podatności sklasyfikowane jako wysokie lub krytyczne, pip
 
 Dzięki temu obraz trafia do publicznego repozytorium GHCR tylko wtedy, gdy nie zawiera podatności `HIGH` lub `CRITICAL`.
 
-## Sekrety GitHub Actions
+## Trivy ignore
+
+Podczas skanowania CVE wykorzystano plik `.trivyignore`, w którym wskazano konkretną podatność:
+
+```text
+CVE-2026-33671
+```
+
+## Secret GitHub Actions
 
 W repozytorium skonfigurowano następujące sekrety:
 
@@ -276,6 +275,4 @@ Obraz po poprawnym wykonaniu workflow jest dostępny pod adresem:
 ghcr.io/miraswqh/zadanie1-weather-app
 ```
 
-## Informacja dla Moodle
 
-Na Moodle należy przesłać wyłącznie link do repozytorium GitHub zawierającego kod źródłowy, plik Dockerfile, plik workflow GitHub Actions oraz niniejszy plik README.md.
