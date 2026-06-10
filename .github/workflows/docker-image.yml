@@ -1,0 +1,86 @@
+name: Build, scan and push Docker image
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: zadanie1-weather-app
+  CACHE_IMAGE: docker.io/101731/zadanie2-weather-app-cache:buildcache
+
+jobs:
+  build-scan-push:
+    name: Build, scan and push image
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set lowercase image owner
+        run: |
+          echo "OWNER_LC=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
+
+      - name: Set Docker image tags
+        run: |
+          echo "GHCR_IMAGE=ghcr.io/${OWNER_LC}/${IMAGE_NAME}" >> $GITHUB_ENV
+          echo "IMAGE_TAG_SHA=sha-${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: 101731
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: miraswqh
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build image locally for CVE scan
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          platforms: linux/amd64
+          tags: ${{ env.GHCR_IMAGE }}:scan
+          cache-from: type=registry,ref=${{ env.CACHE_IMAGE }}
+
+      - name: Scan image with Trivy
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:0.65.0 image \
+            --format table \
+            --exit-code 1 \
+            --ignore-unfixed \
+            --vuln-type os,library \
+            --severity HIGH,CRITICAL \
+            ${{ env.GHCR_IMAGE }}:scan
+
+      - name: Build and push multi-platform image to GHCR
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ env.GHCR_IMAGE }}:latest
+            ${{ env.GHCR_IMAGE }}:${{ env.IMAGE_TAG_SHA }}
+          cache-from: type=registry,ref=${{ env.CACHE_IMAGE }}
+          cache-to: type=registry,ref=${{ env.CACHE_IMAGE }},mode=max

@@ -1,0 +1,14 @@
+{
+  "name": "zadanie1-weather-app",
+  "version": "1.0.0",
+  "description": "Aplikacja pogodowa uruchamiana w kontenerze Docker",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "Mariia Flidermoiz",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
