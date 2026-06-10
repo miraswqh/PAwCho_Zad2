@@ -12,21 +12,6 @@ W ramach zadania 2 przygotowano pipeline GitHub Actions, który buduje obraz kon
 
 Mariia Flidermoiz
 
-## Struktura repozytorium
-
-```text
-.
-├── .github
-│   └── workflows
-│       └── docker-image.yml
-├── Dockerfile
-├── .dockerignore
-├── .gitignore
-├── package.json
-├── package-lock.json
-├── server.js
-└── README.md
-```
 
 ## Działanie aplikacji
 
